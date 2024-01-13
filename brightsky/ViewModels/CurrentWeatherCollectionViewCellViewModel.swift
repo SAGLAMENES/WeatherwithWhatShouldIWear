@@ -20,7 +20,7 @@ struct CurrentWeatherCollectionViewCellViewModel {
     }
 
     public var temperature: String {
-        return "\(Int(model.temperature.converted(to: .fahrenheit).value)) °F"
+        return "\(Int(model.temperature.converted(to: .celsius).value)) °C"
     }
 
     public var iconName: String {

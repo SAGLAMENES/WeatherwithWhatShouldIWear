@@ -4,10 +4,16 @@ import WeatherKit
 struct WhatToWearView: View {
     @State private var time = Date.now
     @State private var shouldIWear = false
+    @State private var selectedHour1 = Int()
+    @State private var selectedHour2 = Int()
+
     public let model1: [HourWeather] = WeatherManager.shared.hourlyWeather
     
     @State var kis: [UIImage] = []
+    @State var hava0alti: [UIImage] = []
     @State var yaz: [UIImage] = []
+    @State var yagmurlu: [UIImage] = []
+    @State var mangal: [UIImage] = []
     
     var body: some View {
         VStack() {
@@ -16,7 +22,27 @@ struct WhatToWearView: View {
                     Text("Select Time: ")
                         .font(.title)
                     
-                    DatePicker("", selection: $time, displayedComponents: .hourAndMinute)
+                    Picker("Select Hour", selection: $selectedHour1) {
+                        
+                                    ForEach(0..<24) { hour in
+                                        Text("\(hourString(from:WeatherManager.shared.hourlyWeather[hour].date)):00").tag(hour)
+                                        
+                                    }
+                    }.onTapGesture {
+                        shouldIWear = false
+                    }
+                                .pickerStyle(.menu)
+                        .labelsHidden()
+                    Text("-")
+                        .font(.headline)
+                    Picker("Select Hour", selection: $selectedHour2) {
+                                    ForEach(0..<24) { hour in
+                                        Text("\(hourString(from:WeatherManager.shared.hourlyWeather[hour+1].date)):00").tag(hour)
+                                    }
+                    }.onTapGesture {
+                        shouldIWear = false
+                    }
+                                .pickerStyle(.menu)
                         .labelsHidden()
                         
                 })
@@ -34,12 +60,53 @@ struct WhatToWearView: View {
             
             if shouldIWear {
                     let imagesToShow = (WeatherManager.shared.currentWeather?.temperature.value)! > 12.0 ? yaz : kis
-                ScrollView(.horizontal){
-                    HStack {
-                        ForEach(imagesToShow, id: \.self) { image in
-                            Image(uiImage: image)
-                                .resizable()
-                                .frame(width: 100, height: 100)
+                
+                VStack {
+                    Text("Tempreture is between-> \(WeatherManager.shared.hourlyWeather[selectedHour1].temperature.value.formatted())°C-\(WeatherManager.shared.hourlyWeather[selectedHour2].temperature.value.formatted())°C")
+                        .bold()
+                    HStack{
+                        Image(systemName:  WeatherManager.shared.hourlyWeather[selectedHour1].symbolName)
+                        Text("-")
+                        Image(systemName:  WeatherManager.shared.hourlyWeather[selectedHour2].symbolName)
+                    }
+                    ScrollView(.horizontal){
+                        HStack {
+                            if WeatherManager.shared.hourlyWeather[selectedHour1].symbolName == "cloud.rain" || WeatherManager.shared.hourlyWeather[selectedHour2].symbolName == "cloud.rain"{
+                                ForEach(yagmurlu, id: \.self) { image in
+                                    Image(uiImage: image)
+                                        .resizable()
+                                        .frame(width: 100, height: 100)
+                                }
+                            }
+                           else if WeatherManager.shared.hourlyWeather[selectedHour1].temperature.value < 7.0 || WeatherManager.shared.hourlyWeather[selectedHour2].temperature.value < 7.0   {
+                                ForEach(hava0alti, id: \.self) { image in
+                                    Image(uiImage: image)
+                                        .resizable()
+                                        .frame(width: 100, height: 100)
+                                }
+                            }
+                            else if WeatherManager.shared.hourlyWeather[selectedHour1].temperature.value >= 7.0 && WeatherManager.shared.hourlyWeather[selectedHour1].temperature.value < 16.0 || WeatherManager.shared.hourlyWeather[selectedHour2].temperature.value >= 7.0 && WeatherManager.shared.hourlyWeather[selectedHour2].temperature.value < 16.0   {
+                                ForEach(kis, id: \.self) { image in
+                                    Image(uiImage: image)
+                                        .resizable()
+                                        .frame(width: 100, height: 100)
+                                }
+                            }
+                            else if WeatherManager.shared.hourlyWeather[selectedHour1].temperature.value >= 16.0 && WeatherManager.shared.hourlyWeather[selectedHour2].temperature.value < 30.0 || WeatherManager.shared.hourlyWeather[selectedHour2].temperature.value >= 16.0 && WeatherManager.shared.hourlyWeather[selectedHour2].temperature.value < 30.0 {
+                                ForEach(yaz, id: \.self) { image in
+                                    Image(uiImage: image)
+                                        .resizable()
+                                        .frame(width: 100, height: 100)
+                                }
+                            }
+                            else  {
+                                 ForEach(mangal, id: \.self) { image in
+                                     Image(uiImage: image)
+                                         .resizable()
+                                         .frame(width: 100, height: 100)
+                                 }
+                             }
+                                        
                         }
                     }
                 }
@@ -47,28 +114,45 @@ struct WhatToWearView: View {
             }
         }
         .onAppear() {
-            kis.append(UIImage(named: "sapka")!)
-            kis.append(UIImage(named: "eldiven")!)
-            kis.append(UIImage(named: "atki")!)
-            kis.append(UIImage(named: "bot")!)
-            kis.append(UIImage(named: "semsiye")!)
+            kis.append(UIImage(named: "kisyagmur")!)
+            kis.append(UIImage(named: "kisyagmur2")!)
+            kis.append(UIImage(named: "kisyagmur3")!)
             
-            yaz.append(UIImage(named: "gozluk")!)
-            yaz.append(UIImage(named: "ayakkabi")!)
-            yaz.append(UIImage(named: "su")!)
+            hava0alti.append(UIImage(named: "kis1")!)
+            hava0alti.append(UIImage(named: "kis2")!)
+            hava0alti.append(UIImage(named: "kisyagmur")!)
+            hava0alti.append(UIImage(named: "kisyagmur2")!)
+            hava0alti.append(UIImage(named: "kisyagmur3")!)
+
+            yaz.append(UIImage(named: "yaz1")!)
+            yaz.append(UIImage(named: "yaz2")!)
+            yaz.append(UIImage(named: "yazmangal")!)
+            
+            yagmurlu.append(UIImage(named: "yagmur")!)
+            yagmurlu.append(UIImage(named: "yagmur2")!)
+            yagmurlu.append(UIImage(named: "kisyagmur")!)
+            yagmurlu.append(UIImage(named: "kisyagmur2")!)
+            yagmurlu.append(UIImage(named: "kisyagmur3")!)
+                
+            mangal.append(UIImage(named:"mangal")!)
+            mangal.append(UIImage(named:"mangal2")!)
+            mangal.append(UIImage(named:"mangal3")!)
+            mangal.append(UIImage(named:"yazmangal")!)
+
+            
+            
+      
+            print(WeatherManager.shared.hourlyWeather[1].symbolName)
+            
         }
     }
-    
-    private func getSelectedHourWeather() -> HourWeather? {
-        let calendar = Calendar.current
-        let components = calendar.dateComponents([.hour, .minute], from: time)
-        let selectedHour = components.hour ?? 0
+    func hourString(from date: Date) -> String {
+            let formatter = DateFormatter()
+            // Set the desired date format
+            formatter.dateFormat = "HH" // 24-hour format
+            // formatter.dateFormat = "h a" // 12-hour format with AM/PM
 
-        if let index = model1.firstIndex(where: { calendar.component(.hour, from: $0.date) == selectedHour }) {
-                return model1[index]
-            }
-        print("hata")
-        return nil
-    }
+            return formatter.string(from: date)
+        }
 }
 
